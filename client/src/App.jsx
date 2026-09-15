@@ -3,6 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import WorkspaceDetail from './pages/WorkspaceDetail';
 
 export default function App() {
   return (
@@ -18,6 +19,16 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/workspace/:workspaceId"
+          element={
+            <ProtectedRoute>
+              <WorkspaceDetail />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

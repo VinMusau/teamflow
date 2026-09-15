@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import api from '../api/axios';
-import { getToken, setToken, clearToken } from '../lib/tokenStorage';
+import { useTokenStore } from './useTokenStore';
 
-export const useAuthStore = create((set, get) => ({
+export const useAuthStore = create((set) => ({
   user: null,
   loading: true,
 
   initialize: async () => {
-    const token = getToken();
+    const token = useTokenStore.getState().token;
     if (!token) {
       set({ loading: false });
       return;
@@ -16,27 +16,27 @@ export const useAuthStore = create((set, get) => ({
       const res = await api.get('/auth/me');
       set({ user: res.data.user, loading: false });
     } catch {
-      clearToken();
+      useTokenStore.getState().clearToken();
       set({ user: null, loading: false });
     }
   },
 
   login: async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
-    setToken(res.data.token);
+    useTokenStore.getState().setToken(res.data.token);
     set({ user: res.data.user });
     return res.data.user;
   },
 
   register: async (name, email, password) => {
     const res = await api.post('/auth/register', { name, email, password });
-    setToken(res.data.token);
+    useTokenStore.getState().setToken(res.data.token);
     set({ user: res.data.user });
     return res.data.user;
   },
 
   logout: () => {
-    clearToken();
+    useTokenStore.getState().clearToken();
     set({ user: null });
   },
 }));
