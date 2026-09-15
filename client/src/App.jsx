@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import WorkspaceDetail from './pages/WorkspaceDetail';
+import ProjectDetail from './pages/ProjectDetail';
 
 export default function App() {
   return (
@@ -25,6 +26,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <WorkspaceDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route 
+          path="/workspace/:workspaceId/project/:projectId"
+          element={
+            <ProtectedRoute>
+              <ProjectDetail />
             </ProtectedRoute>
           }
         />

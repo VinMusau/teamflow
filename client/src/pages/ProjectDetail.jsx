@@ -41,12 +41,12 @@ export default function ProjectDetail() {
         <div className="flex items-center gap-3">
           <span
             className="h-4 w-4 rounded-full"
-            style={{ backgroundColor: project?.color }}
+            style={{ backgroundColor: project.color }}
           />
           <h1 className="text-2xl font-bold">{project?.name}</h1>
         </div>
-        {project?.description && (
-          <p className="mt-2 text-sm text-slate-400">{project?.description}</p>
+        {project.description && (
+          <p className="mt-2 text-sm text-slate-400">{project.description}</p>
         )}
 
         <div className="mt-8 rounded-2xl border border-dashed border-slate-800 p-10 text-center">

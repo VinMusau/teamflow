@@ -5,13 +5,18 @@ import {
   useAddMember,
   useRemoveMember,
 } from '../hooks/useWorkspaces';
+import { useProjects } from '../hooks/useProjects';
 import { useAuthStore } from '../stores/useAuthStore';
+import { useUiStore } from '../stores/useUiStore';
+import CreateProjectModal from '../components/CreateProjectModal';
 
 export default function WorkspaceDetail() {
   const { workspaceId } = useParams();
   const currentUser = useAuthStore((s) => s.user);
+  const openCreateProject = useUiStore((s) => s.openCreateProject);
 
   const { data: workspace, isLoading, isError, error } = useWorkspace(workspaceId);
+  const { data: projects, isLoading: loadingProjects } = useProjects(workspaceId);
   const addMember = useAddMember();
   const removeMember = useRemoveMember();
 
@@ -63,7 +68,10 @@ export default function WorkspaceDetail() {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="border-b border-slate-800">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link to="/dashboard" className="text-sm text-slate-400 hover:text-slate-200">
+          <Link
+            to="/dashboard"
+            className="text-sm text-slate-400 hover:text-slate-200"
+          >
             ← Back to dashboard
           </Link>
           <span className="text-xs text-slate-500">
@@ -76,10 +84,66 @@ export default function WorkspaceDetail() {
         <div>
           <h1 className="text-2xl font-bold">{workspace.name}</h1>
           {workspace.description && (
-            <p className="mt-1 text-sm text-slate-400">{workspace.description}</p>
+            <p className="mt-1 text-sm text-slate-400">
+              {workspace.description}
+            </p>
           )}
         </div>
 
+        {/* Projects */}
+        <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Projects</h2>
+            <button
+              onClick={openCreateProject}
+              className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-500"
+            >
+              + New project
+            </button>
+          </div>
+
+          {loadingProjects && (
+            <p className="mt-4 text-sm text-slate-400">Loading projects…</p>
+          )}
+
+          {!loadingProjects && projects?.length === 0 && (
+            <div className="mt-4 rounded-xl border border-dashed border-slate-800 p-8 text-center">
+              <p className="text-sm text-slate-400">
+                No projects yet. Create one to get started.
+              </p>
+            </div>
+          )}
+
+          {projects?.length > 0 && (
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {projects.map((p) => (
+                <li key={p._id}>
+                  <Link
+                    to={`/workspaces/${workspaceId}/projects/${p._id}`}
+                    className="flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-950 p-4 hover:border-indigo-600"
+                  >
+                    <span
+                      className="mt-0.5 h-3 w-3 flex-shrink-0 rounded-full"
+                      style={{ backgroundColor: p.color }}
+                    />
+                    <div className="min-w-0">
+                      <h3 className="truncate font-medium text-slate-100">
+                        {p.name}
+                      </h3>
+                      {p.description && (
+                        <p className="mt-1 line-clamp-2 text-xs text-slate-400">
+                          {p.description}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* Members */}
         <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
           <h2 className="text-lg font-semibold">Members</h2>
 
@@ -137,6 +201,8 @@ export default function WorkspaceDetail() {
           )}
         </section>
       </main>
+
+      <CreateProjectModal workspaceId={workspaceId} />
     </div>
   );
 }
