@@ -10,6 +10,7 @@ import {
 } from '../controllers/workspaceController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { loadWorkspace, requireRole } from '../middleware/workspaceMiddleware.js';
+import projectRoutes from './projectRoutes.js';
 
 const router = Router();
 
@@ -19,6 +20,8 @@ router.use(protect);
 router.route('/')
   .get(listMyWorkspaces)
   .post(createWorkspace);
+
+router.use('/:workspaceId/projects', projectRoutes);
 
 router.route('/:workspaceId')
   .get(loadWorkspace, getWorkspace)
