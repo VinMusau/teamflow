@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -18,8 +18,10 @@ export default function KanbanBoard({
   onTaskMoved,
   onAddTask,
   onDeleteTask,
+  onCardClick,
 }) {
   const [activeTask, setActiveTask] = useState(null);
+  const draggedRef = useRef(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -39,6 +41,7 @@ export default function KanbanBoard({
   }, [tasks]);
 
   const handleDragStart = (event) => {
+    draggedRef.current = true;
     const task = tasks.find((t) => t._id === event.active.id);
     setActiveTask(task ?? null);
   };
@@ -46,12 +49,17 @@ export default function KanbanBoard({
   const handleDragEnd = (event) => {
     setActiveTask(null);
     const { active, over } = event;
+
+    // Allow the click event to fire and get suppressed by the ref
+    setTimeout(() => {
+      draggedRef.current = false;
+    }, 100);
+
     if (!over) return;
 
     const movingTask = tasks.find((t) => t._id === active.id);
     if (!movingTask) return;
 
-    // Figure out the target column
     let targetStatus;
     if (COLUMN_IDS.includes(over.id)) {
       targetStatus = over.id;
@@ -61,21 +69,18 @@ export default function KanbanBoard({
       targetStatus = overTask.status;
     }
 
-    // Target column without the moving task
     const targetColumnTasks = tasksByColumn[targetStatus].filter(
       (t) => t._id !== movingTask._id
     );
 
-    // Compute target index
     let targetIndex;
     if (COLUMN_IDS.includes(over.id)) {
-      targetIndex = targetColumnTasks.length; // dropped on empty area → end
+      targetIndex = targetColumnTasks.length;
     } else {
       const idx = targetColumnTasks.findIndex((t) => t._id === over.id);
       targetIndex = idx === -1 ? targetColumnTasks.length : idx;
     }
 
-    // Fractional order between neighbors
     const before = targetColumnTasks[targetIndex - 1]?.order;
     const after = targetColumnTasks[targetIndex]?.order;
 
@@ -85,7 +90,6 @@ export default function KanbanBoard({
     else if (after === undefined) newOrder = before + 1;
     else newOrder = (before + after) / 2;
 
-    // Bail out if nothing actually changed
     if (
       movingTask.status === targetStatus &&
       movingTask.order === newOrder
@@ -100,13 +104,24 @@ export default function KanbanBoard({
     });
   };
 
+  const handleCardClick = (task) => {
+    // Ignore clicks that were actually drags
+    if (draggedRef.current) return;
+    onCardClick?.(task);
+  };
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => setActiveTask(null)}
+      onDragCancel={() => {
+        setActiveTask(null);
+        setTimeout(() => {
+          draggedRef.current = false;
+        }, 100);
+      }}
     >
       <div className="grid gap-4 md:grid-cols-3">
         {COLUMN_IDS.map((status) => (
@@ -116,6 +131,7 @@ export default function KanbanBoard({
             tasks={tasksByColumn[status]}
             onAddTask={onAddTask}
             onDeleteTask={onDeleteTask}
+            onCardClick={handleCardClick}
           />
         ))}
       </div>

@@ -12,4 +12,8 @@ export const useUiStore = create((set) => ({
   createTaskStatus: null,
   openCreateTask: (status = 'todo') => set({ createTaskStatus: status }),
   closeCreateTask: () => set({ createTaskStatus: null }),
+
+  selectedTaskId: null,
+  openTaskDetails: (taskId) => set({ selectedTaskId: taskId }),
+  closeTaskDetails: () => set({ selectedTaskId: null }),
 }));

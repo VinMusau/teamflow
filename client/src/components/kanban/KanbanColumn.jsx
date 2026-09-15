@@ -11,6 +11,7 @@ export default function KanbanColumn({
   tasks,
   onAddTask,
   onDeleteTask,
+  onCardClick,
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -52,6 +53,7 @@ export default function KanbanColumn({
               key={task._id}
               task={task}
               onDelete={onDeleteTask}
+              onClick={onCardClick}
             />
           ))}
         </div>

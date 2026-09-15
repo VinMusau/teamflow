@@ -2,7 +2,12 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { PRIORITY_LABELS, PRIORITY_COLORS } from '../../lib/taskConstants';
 
-export default function KanbanCard({ task, overlay = false, onDelete }) {
+export default function KanbanCard({
+  task,
+  overlay = false,
+  onDelete,
+  onClick,
+}) {
   const {
     attributes,
     listeners,
@@ -29,6 +34,7 @@ export default function KanbanCard({ task, overlay = false, onDelete }) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => !overlay && onClick?.(task)}
       className={`group relative cursor-grab rounded-lg border border-slate-800 bg-slate-950 p-3 active:cursor-grabbing ${
         overlay ? 'shadow-2xl ring-2 ring-indigo-500' : ''
       }`}
@@ -58,6 +64,7 @@ export default function KanbanCard({ task, overlay = false, onDelete }) {
 
       {!overlay && onDelete && (
         <button
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation();
             onDelete(task);

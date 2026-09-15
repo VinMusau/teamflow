@@ -5,10 +5,15 @@ import { useTasks, useUpdateTask, useDeleteTask } from '../hooks/useTasks';
 import { useUiStore } from '../stores/useUiStore';
 import KanbanBoard from '../components/kanban/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
+import TaskDetailsModal from '../components/TaskDetailsModal';
 
 export default function ProjectDetail() {
   const { workspaceId, projectId } = useParams();
+
   const openCreateTask = useUiStore((s) => s.openCreateTask);
+  const selectedTaskId = useUiStore((s) => s.selectedTaskId);
+  const openTaskDetails = useUiStore((s) => s.openTaskDetails);
+  const closeTaskDetails = useUiStore((s) => s.closeTaskDetails);
 
   const { data: project, isLoading, isError, error } = useProject({
     workspaceId,
@@ -41,6 +46,11 @@ export default function ProjectDetail() {
 
   const members = workspace?.members ?? [];
 
+  // Find the currently selected task from the cached list. If it was
+  // deleted elsewhere, selectedTask is null and the modal unmounts.
+  const selectedTask =
+    tasks?.find((t) => t._id === selectedTaskId) ?? null;
+
   const handleTaskMoved = ({ taskId, status, order }) => {
     updateTask.mutate({ workspaceId, projectId, taskId, status, order });
   };
@@ -48,6 +58,10 @@ export default function ProjectDetail() {
   const handleDeleteTask = (task) => {
     if (!confirm(`Delete "${task.title}"?`)) return;
     deleteTask.mutate({ workspaceId, projectId, taskId: task._id });
+  };
+
+  const handleCardClick = (task) => {
+    openTaskDetails(task._id);
   };
 
   return (
@@ -99,6 +113,7 @@ export default function ProjectDetail() {
               onTaskMoved={handleTaskMoved}
               onAddTask={(status) => openCreateTask(status)}
               onDeleteTask={handleDeleteTask}
+              onCardClick={handleCardClick}
             />
           )}
         </section>
@@ -109,6 +124,17 @@ export default function ProjectDetail() {
         projectId={projectId}
         members={members}
       />
+
+      {selectedTask && (
+        <TaskDetailsModal
+          key={selectedTask._id}
+          task={selectedTask}
+          workspaceId={workspaceId}
+          projectId={projectId}
+          members={members}
+          onClose={closeTaskDetails}
+        />
+      )}
     </div>
   );
 }
