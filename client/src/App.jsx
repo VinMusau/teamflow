@@ -22,7 +22,7 @@ export default function App() {
         />
 
         <Route
-          path="/workspace/:workspaceId"
+          path="/workspaces/:workspaceId"
           element={
             <ProtectedRoute>
               <WorkspaceDetail />
@@ -31,7 +31,7 @@ export default function App() {
         />
 
         <Route 
-          path="/workspace/:workspaceId/project/:projectId"
+          path="/workspaces/:workspaceId/projects/:projectId"
           element={
             <ProtectedRoute>
               <ProjectDetail />

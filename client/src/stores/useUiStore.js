@@ -8,4 +8,8 @@ export const useUiStore = create((set) => ({
   createProjectOpen: false,
   openCreateProject: () => set({ createProjectOpen: true }),
   closeCreateProject: () => set({ createProjectOpen: false }),
+
+  createTaskStatus: null,
+  openCreateTask: (status = 'todo') => set({ createTaskStatus: status }),
+  closeCreateTask: () => set({ createTaskStatus: null }),
 }));
