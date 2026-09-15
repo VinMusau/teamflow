@@ -42,16 +42,38 @@ export function useCreateTask(workspaceId, projectId) {
 
 export function useUpdateTask(workspaceId, projectId) {
   const qc = useQueryClient();
+  const listKey = taskKeys.list(workspaceId, projectId);
+
   return useMutation({
     mutationFn: updateTask,
-    onSuccess: (task) => {
-      qc.invalidateQueries({
-        queryKey: taskKeys.list(workspaceId, projectId),
+
+    onMutate: async (vars) => {
+      await qc.cancelQueries({ queryKey: listKey });
+      const prev = qc.getQueryData(listKey);
+
+      qc.setQueryData(listKey, (old) => {
+        if (!old) return old;
+        return old.map((t) => {
+          if (t._id !== vars.taskId) return t;
+          return {
+            ...t,
+            ...(vars.status !== undefined && { status: vars.status }),
+            ...(vars.order !== undefined && { order: vars.order }),
+            ...(vars.priority !== undefined && { priority: vars.priority }),
+            ...(vars.title !== undefined && { title: vars.title }),
+          };
+        });
       });
-      qc.setQueryData(
-        taskKeys.detail(workspaceId, projectId, task._id),
-        task
-      );
+
+      return { prev };
+    },
+
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(listKey, ctx.prev);
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: listKey });
     },
   });
 }
