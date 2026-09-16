@@ -1,6 +1,12 @@
 import { useEffect } from 'react';
 
-export default function Modal({ open, onClose, title, children }) {
+export default function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  size = 'md',
+}) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -10,14 +16,15 @@ export default function Modal({ open, onClose, title, children }) {
 
   if (!open) return null;
 
+  const width =
+    size === 'xl' ? 'max-w-4xl' : size === 'lg' ? 'max-w-2xl' : 'max-w-md';
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
       <div
-        className="absolute inset-0"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div className="relative w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+        className={`relative w-full ${width} max-h-[90vh] overflow-y-auto rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl`}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-100">{title}</h2>
           <button

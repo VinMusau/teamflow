@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Modal from './Modal';
 import { useUpdateTask, useDeleteTask } from '../hooks/useTasks';
 import { PRIORITIES, STATUSES } from '../lib/taskConstants';
+import TaskComments from './TaskComments'; 
 
 const toDateInput = (iso) =>
   iso ? new Date(iso).toISOString().slice(0, 10) : '';
@@ -11,6 +12,8 @@ export default function TaskDetailsModal({
   workspaceId,
   projectId,
   members = [],
+  currentUserId,
+  currentUserRole,
   onClose,
 }) {
   const updateTask = useUpdateTask(workspaceId, projectId);
@@ -89,7 +92,7 @@ export default function TaskDetailsModal({
   };
 
   return (
-    <Modal open onClose={onClose} title="Task details">
+    <Modal open onClose={onClose} title="Task details" size="lg">
       <form onSubmit={handleSave} className="space-y-4">
         {error && (
           <div className="rounded-lg border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-300">
@@ -214,6 +217,14 @@ export default function TaskDetailsModal({
           </div>
         </div>
       </form>
+
+      <TaskComments
+        workspaceId={workspaceId}
+        projectId={projectId}
+        taskId={task._id}
+        currentUserId={currentUserId}
+        currentUserRole={currentUserRole}
+      />
     </Modal>
   );
 }

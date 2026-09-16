@@ -3,6 +3,7 @@ import { useProject } from '../hooks/useProjects';
 import { useWorkspace } from '../hooks/useWorkspaces';
 import { useTasks, useUpdateTask, useDeleteTask } from '../hooks/useTasks';
 import { useUiStore } from '../stores/useUiStore';
+import { useAuthStore } from '../stores/useAuthStore';
 import KanbanBoard from '../components/kanban/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import TaskDetailsModal from '../components/TaskDetailsModal';
@@ -14,6 +15,7 @@ export default function ProjectDetail() {
   const selectedTaskId = useUiStore((s) => s.selectedTaskId);
   const openTaskDetails = useUiStore((s) => s.openTaskDetails);
   const closeTaskDetails = useUiStore((s) => s.closeTaskDetails);
+  const currentUser = useAuthStore((s) => s.user);
 
   const { data: project, isLoading, isError, error } = useProject({
     workspaceId,
@@ -45,6 +47,11 @@ export default function ProjectDetail() {
   }
 
   const members = workspace?.members ?? [];
+
+  const myMembership = workspace?.members?.find(
+    (m) => m.user._id === currentUser._id
+  );
+  const myRole = myMembership?.role ?? 'member';
 
   // Find the currently selected task from the cached list. If it was
   // deleted elsewhere, selectedTask is null and the modal unmounts.
@@ -132,6 +139,8 @@ export default function ProjectDetail() {
           workspaceId={workspaceId}
           projectId={projectId}
           members={members}
+          currentUserId={currentUser._id}
+          currentUserRole={myRole}
           onClose={closeTaskDetails}
         />
       )}
