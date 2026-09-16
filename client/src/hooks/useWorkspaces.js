@@ -12,6 +12,7 @@ import {
   addMember,
   removeMember,
 } from '../api/workspaces';
+import { activityKeys } from './useActivities';
 
 export const workspaceKeys = {
   all: ['workspaces'],
@@ -40,6 +41,7 @@ export function useCreateWorkspace() {
     onSuccess: (workspace) => {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
     },
   });
 }
@@ -51,6 +53,7 @@ export function useUpdateWorkspace() {
     onSuccess: (workspace) => {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }
@@ -61,6 +64,7 @@ export function useDeleteWorkspace() {
     mutationFn: deleteWorkspace,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }
@@ -71,6 +75,7 @@ export function useAddMember() {
     mutationFn: addMember,
     onSuccess: (workspace) => {
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }
@@ -81,6 +86,7 @@ export function useRemoveMember() {
     mutationFn: removeMember,
     onSuccess: (workspace) => {
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }

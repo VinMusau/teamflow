@@ -9,6 +9,7 @@ import {
   updateTask,
   deleteTask,
 } from '../api/tasks';
+import { activityKeys } from './useActivities';
 
 export const taskKeys = {
   list: (workspaceId, projectId) => ['tasks', workspaceId, projectId],
@@ -36,6 +37,7 @@ export function useCreateTask(workspaceId, projectId) {
       qc.invalidateQueries({
         queryKey: taskKeys.list(workspaceId, projectId),
       });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
     },
   });
 }
@@ -86,6 +88,7 @@ export function useDeleteTask(workspaceId, projectId) {
       qc.invalidateQueries({
         queryKey: taskKeys.list(workspaceId, projectId),
       });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }

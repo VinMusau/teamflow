@@ -9,6 +9,7 @@ import { useProjects } from '../hooks/useProjects';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useUiStore } from '../stores/useUiStore';
 import CreateProjectModal from '../components/CreateProjectModal';
+import ActivityFeed from '../components/ActivityFeed';
 
 export default function WorkspaceDetail() {
   const { workspaceId } = useParams();
@@ -200,6 +201,8 @@ export default function WorkspaceDetail() {
             <p className="mt-2 text-sm text-red-400">{inviteError}</p>
           )}
         </section>
+        {/* Activity */}
+        <ActivityFeed workspaceId={workspaceId} />
       </main>
 
       <CreateProjectModal workspaceId={workspaceId} />

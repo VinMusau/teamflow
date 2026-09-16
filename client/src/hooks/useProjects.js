@@ -10,6 +10,7 @@ import {
   updateProject,
   deleteProject,
 } from '../api/projects';
+import { activityKeys } from './useActivities';
 
 export const projectKeys = {
   list: (workspaceId) => ['projects', workspaceId],
@@ -42,6 +43,7 @@ export function useCreateProject(workspaceId) {
         projectKeys.detail(workspaceId, project._id),
         project
       );
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
     },
   });
 }
@@ -56,6 +58,7 @@ export function useUpdateProject(workspaceId) {
         projectKeys.detail(workspaceId, project._id),
         project
       );
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }
@@ -66,6 +69,7 @@ export function useDeleteProject(workspaceId) {
     mutationFn: deleteProject,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: projectKeys.list(workspaceId) });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }
