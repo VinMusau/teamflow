@@ -1,31 +1,26 @@
 import { Router } from 'express';
 import {
-  listTasks,
-  createTask,
-  getTask,
-  updateTask,
-  deleteTask,
-} from '../controllers/taskController.js';
+  listComments,
+  createComment,
+  deleteComment,
+} from '../controllers/commentController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { loadWorkspace } from '../middleware/workspaceMiddleware.js';
 import { loadProject } from '../middleware/projectMiddleware.js';
-import commentRoutes from './commentRoutes.js';
+import { loadTask } from '../middleware/taskMiddleware.js';
 
 const router = Router({ mergeParams: true });
 
 router.use(protect);
 router.use(loadWorkspace);
 router.use(loadProject);
-
-router.use('/:taskId/comments', commentRoutes);
+router.use(loadTask);
 
 router.route('/')
-  .get(listTasks)
-  .post(createTask);
+  .get(listComments)
+  .post(createComment);
 
-router.route('/:taskId')
-  .get(getTask)
-  .patch(updateTask)
-  .delete(deleteTask);
+router.route('/:commentId')
+  .delete(deleteComment);
 
 export default router;
