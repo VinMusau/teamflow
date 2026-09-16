@@ -11,6 +11,7 @@ import {
 import { protect } from '../middleware/authMiddleware.js';
 import { loadWorkspace, requireRole } from '../middleware/workspaceMiddleware.js';
 import projectRoutes from './projectRoutes.js';
+import activityRoutes from './activityRoutes.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.route('/')
   .post(createWorkspace);
 
 router.use('/:workspaceId/projects', projectRoutes);
+router.use('/:workspaceId/activities', activityRoutes);
 
 router.route('/:workspaceId')
   .get(loadWorkspace, getWorkspace)

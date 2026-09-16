@@ -1,5 +1,6 @@
 import Workspace from '../models/Workspace.js';
 import User from '../models/User.js';
+import { logActivity } from '../utils/logActivity.js';
 
 const populate = (q) =>
   q
@@ -36,6 +37,15 @@ export const createWorkspace = async (req, res, next) => {
     });
 
     const full = await populate(Workspace.findById(workspace._id));
+    await logActivity({
+      workspace: workspace._id,
+      actor: req.user._id,
+      action: 'workspace.created',
+      targetType: 'workspace',
+      targetId: workspace._id,
+      targetLabel: workspace.name,
+    });
+
     res.status(201).json({ workspace: full });
   } catch (err) {
     next(err);
@@ -55,6 +65,20 @@ export const updateWorkspace = async (req, res, next) => {
     if (name !== undefined) req.workspace.name = name;
     if (description !== undefined) req.workspace.description = description;
     await req.workspace.save();
+
+    const changedFields = [];
+    if (name !== undefined) changedFields.push('name');
+    if (description !== undefined) changedFields.push('description');
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'workspace.updated',
+      targetType: 'workspace',
+      targetId: req.workspace._id,
+      targetLabel: req.workspace.name,
+      meta: { changedFields },
+    });
 
     const full = await populate(Workspace.findById(req.workspace._id));
     res.json({ workspace: full });
@@ -100,6 +124,17 @@ export const addMember = async (req, res, next) => {
     await req.workspace.save();
 
     const full = await populate(Workspace.findById(req.workspace._id));
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'workspace.member_added',
+      targetType: 'user',
+      targetId: user._id,
+      targetLabel: user.name,
+      meta: { role },
+    });
+
     res.status(201).json({ workspace: full });
   } catch (err) {
     next(err);
@@ -119,9 +154,23 @@ export const removeMember = async (req, res, next) => {
     req.workspace.members = req.workspace.members.filter(
       (m) => m.user.toString() !== userId
     );
+    const removed = await User.findById(userId).select('name');
+
     await req.workspace.save();
 
     const full = await populate(Workspace.findById(req.workspace._id));
+
+    if (removed) {
+      await logActivity({
+        workspace: req.workspace._id,
+        actor: req.user._id,
+        action: 'workspace.member_removed',
+        targetType: 'user',
+        targetId: removed._id,
+        targetLabel: removed.name,
+      });
+    }
+    
     res.json({ workspace: full });
   } catch (err) {
     next(err);

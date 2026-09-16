@@ -1,4 +1,5 @@
 import Project from '../models/Project.js';
+import { logActivity } from '../utils/logActivity.js';
 
 const populate = (q) =>
   q.populate('createdBy', 'name email avatar');
@@ -33,6 +34,16 @@ export const createProject = async (req, res, next) => {
     });
 
     const full = await populate(Project.findById(project._id));
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'project.created',
+      targetType: 'project',
+      targetId: full._id,
+      targetLabel: full.name,
+    });
+
     res.status(201).json({ project: full });
   } catch (err) {
     next(err);
@@ -76,6 +87,23 @@ export const updateProject = async (req, res, next) => {
     if (color !== undefined) project.color = color;
     await project.save();
 
+    const changedFields = [];
+    if (name !== undefined) changedFields.push('name');
+    if (description !== undefined) changedFields.push('description');
+    if (color !== undefined) changedFields.push('color');
+
+    if (changedFields.length) {
+      await logActivity({
+        workspace: req.workspace._id,
+        actor: req.user._id,
+        action: 'project.updated',
+        targetType: 'project',
+        targetId: project._id,
+        targetLabel: project.name,
+        meta: { changedFields },
+      });
+    }
+
     const full = await populate(Project.findById(project._id));
     res.json({ project: full });
   } catch (err) {
@@ -94,6 +122,16 @@ export const deleteProject = async (req, res, next) => {
       res.status(404);
       throw new Error('Project not found');
     }
+    
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'project.deleted',
+      targetType: 'project',
+      targetId: project._id,
+      targetLabel: project.name,
+    });
+
     res.json({ message: 'Project deleted' });
   } catch (err) {
     next(err);

@@ -1,5 +1,6 @@
 import Task, { TASK_STATUSES, TASK_PRIORITIES } from '../models/Task.js';
 import { isWorkspaceMember } from '../middleware/projectMiddleware.js';
+import { logActivity } from '../utils/logActivity.js';
 
 const populate = (q) => q.populate('assignee', 'name email avatar');
 
@@ -77,6 +78,17 @@ export const createTask = async (req, res, next) => {
     });
 
     const full = await populate(Task.findById(task._id));
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'task.created',
+      targetType: 'task',
+      targetId: full._id,
+      targetLabel: full.title,
+      meta: { status: full.status, priority: full.priority },
+    });
+
     res.status(201).json({ task: full });
   } catch (err) {
     next(err);
@@ -138,6 +150,16 @@ export const updateTask = async (req, res, next) => {
       throw new Error('Assignee must be a member of the workspace');
     }
 
+    // Snapshot original values for the activity log
+    const original = {
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate,
+      assignee: task.assignee?.toString() ?? null,
+    };
+
     if (title !== undefined) task.title = title;
     if (description !== undefined) task.description = description;
     if (status !== undefined) task.status = status;
@@ -151,12 +173,57 @@ export const updateTask = async (req, res, next) => {
     await task.save();
 
     const full = await populate(Task.findById(task._id));
+
+    // Compute what actually changed and log the meaningful events
+    const changedFields = [];
+    if (title !== undefined && title !== original.title) changedFields.push('title');
+    if (description !== undefined && description !== original.description) changedFields.push('description');
+    if (priority !== undefined && priority !== original.priority) changedFields.push('priority');
+    if (dueDate !== undefined) changedFields.push('dueDate');
+    if (order !== undefined) changedFields.push('order');
+
+    const newAssignee = task.assignee?.toString() ?? null;
+    if (assignee !== undefined && newAssignee !== original.assignee) {
+      await logActivity({
+        workspace: req.workspace._id,
+        actor: req.user._id,
+        action: 'task.assigned',
+        targetType: 'task',
+        targetId: task._id,
+        targetLabel: task.title,
+        meta: { from: original.assignee, to: newAssignee },
+      });
+    }
+
+    if (status !== undefined && status !== original.status) {
+      await logActivity({
+        workspace: req.workspace._id,
+        actor: req.user._id,
+        action: 'task.status_changed',
+        targetType: 'task',
+        targetId: task._id,
+        targetLabel: task.title,
+        meta: { from: original.status, to: status },
+      });
+    }
+
+    if (changedFields.length) {
+      await logActivity({
+        workspace: req.workspace._id,
+        actor: req.user._id,
+        action: 'task.updated',
+        targetType: 'task',
+        targetId: task._id,
+        targetLabel: task.title,
+        meta: { changedFields },
+      });
+    }
+
     res.json({ task: full });
   } catch (err) {
     next(err);
   }
 };
-
 // DELETE /api/workspaces/:wid/projects/:pid/tasks/:taskId
 export const deleteTask = async (req, res, next) => {
   try {
@@ -164,6 +231,16 @@ export const deleteTask = async (req, res, next) => {
       _id: req.params.taskId,
       project: req.project._id,
     });
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'task.deleted',
+      targetType: 'task',
+      targetId: task._id,
+      targetLabel: task.title,
+    });
+
     if (!task) {
       res.status(404);
       throw new Error('Task not found');
