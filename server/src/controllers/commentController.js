@@ -1,24 +1,9 @@
 import Comment from '../models/Comment.js';
-import { notifyUsers } from '../utils/notifyUsers.js';
 import Task from '../models/Task.js';
+import { notifyUsers } from '../utils/notifyUsers.js';
+import { logActivity } from '../utils/logActivity.js';
 
 const populate = (q) => q.populate('author', 'name email avatar');
-
-// Fetch the task with its assignee and creator populated
-const task = await Task.findById(req.task._id).select('assignee createdBy');
-
-const recipients = [];
-if (task.assignee) recipients.push(task.assignee);
-if (task.createdBy) recipients.push(task.createdBy);
-
-await notifyUsers({
-  recipients,
-  actor: req.user._id,
-  workspace: req.workspace._id,
-  type: 'comment.created',
-  targetLabel: req.task.title,
-  link: `/workspaces/${req.workspace._id}/projects/${req.project._id}`,
-});
 
 // GET /api/workspaces/:wid/projects/:pid/tasks/:taskId/comments
 export const listComments = async (req, res, next) => {
@@ -48,6 +33,35 @@ export const createComment = async (req, res, next) => {
     });
 
     const full = await populate(Comment.findById(comment._id));
+
+    // --- Side effects (activity + notifications) ---
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'comment.created',
+      targetType: 'task',
+      targetId: req.task._id,
+      targetLabel: req.task.title,
+    });
+
+    const task = await Task.findById(req.task._id).select(
+      'assignee createdBy'
+    );
+
+    const recipients = [];
+    if (task.assignee) recipients.push(task.assignee);
+    if (task.createdBy) recipients.push(task.createdBy);
+
+    await notifyUsers({
+      recipients,
+      actor: req.user._id,
+      workspace: req.workspace._id,
+      type: 'comment.created',
+      targetLabel: req.task.title,
+      link: `/workspaces/${req.workspace._id}/projects/${req.project._id}`,
+    });
+
     res.status(201).json({ comment: full });
   } catch (err) {
     next(err);
@@ -77,6 +91,18 @@ export const deleteComment = async (req, res, next) => {
     }
 
     await comment.deleteOne();
+
+    // --- Side effect (activity) ---
+
+    await logActivity({
+      workspace: req.workspace._id,
+      actor: req.user._id,
+      action: 'comment.deleted',
+      targetType: 'task',
+      targetId: req.task._id,
+      targetLabel: req.task.title,
+    });
+
     res.json({ message: 'Comment deleted' });
   } catch (err) {
     next(err);
