@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useUiStore } from '../stores/useUiStore';
 import { useWorkspaces } from '../hooks/useWorkspaces';
 import CreateWorkspaceModal from '../components/CreateWorkspaceModal';
+import NotificationBell from '../components/NotificationBell';
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
@@ -18,6 +19,7 @@ export default function Dashboard() {
           <h1 className="text-lg font-semibold">TeamFlow</h1>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-400">{user?.name}</span>
+            <NotificationBell />
             <button
               onClick={logout}
               className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm hover:bg-slate-800"

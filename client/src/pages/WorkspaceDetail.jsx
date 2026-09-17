@@ -10,6 +10,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useUiStore } from '../stores/useUiStore';
 import CreateProjectModal from '../components/CreateProjectModal';
 import ActivityFeed from '../components/ActivityFeed';
+import AppHeader from '../components/AppHeader';
 
 export default function WorkspaceDetail() {
   const { workspaceId } = useParams();
@@ -68,17 +69,7 @@ export default function WorkspaceDetail() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="border-b border-slate-800">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link
-            to="/dashboard"
-            className="text-sm text-slate-400 hover:text-slate-200"
-          >
-            ← Back to dashboard
-          </Link>
-          <span className="text-xs text-slate-500">
-            Role: <span className="text-slate-300">{myMembership?.role}</span>
-          </span>
-        </div>
+          <AppHeader backTo="/dashboard" backLabel="Back to dashboard" />
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-10 space-y-8">

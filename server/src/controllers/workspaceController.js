@@ -1,7 +1,7 @@
 import Workspace from '../models/Workspace.js';
 import User from '../models/User.js';
 import { logActivity } from '../utils/logActivity.js';
-impoer { notifyUsers } from '../utils/notifyUsers.js';
+import { notifyUsers } from '../utils/notifyUsers.js';
 
 const populate = (q) =>
   q

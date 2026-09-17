@@ -7,6 +7,8 @@ import { useAuthStore } from '../stores/useAuthStore';
 import KanbanBoard from '../components/kanban/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import TaskDetailsModal from '../components/TaskDetailsModal';
+import NotificationBell from '../components/NotificationBell';
+import AppHeader from '../components/AppHeader';
 
 export default function ProjectDetail() {
   const { workspaceId, projectId } = useParams();
@@ -75,12 +77,7 @@ export default function ProjectDetail() {
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="border-b border-slate-800">
         <div className="mx-auto max-w-6xl px-6 py-4">
-          <Link
-            to={`/workspaces/${workspaceId}`}
-            className="text-sm text-slate-400 hover:text-slate-200"
-          >
-            ← Back to workspace
-          </Link>
+          <AppHeader backTo={`/workspace/${workspaceId}`} backLabel="Back to workspace" />
         </div>
       </header>
 
