@@ -1,6 +1,24 @@
 import Comment from '../models/Comment.js';
+import { notifyUsers } from '../utils/notifyUsers.js';
+import Task from '../models/Task.js';
 
 const populate = (q) => q.populate('author', 'name email avatar');
+
+// Fetch the task with its assignee and creator populated
+const task = await Task.findById(req.task._id).select('assignee createdBy');
+
+const recipients = [];
+if (task.assignee) recipients.push(task.assignee);
+if (task.createdBy) recipients.push(task.createdBy);
+
+await notifyUsers({
+  recipients,
+  actor: req.user._id,
+  workspace: req.workspace._id,
+  type: 'comment.created',
+  targetLabel: req.task.title,
+  link: `/workspaces/${req.workspace._id}/projects/${req.project._id}`,
+});
 
 // GET /api/workspaces/:wid/projects/:pid/tasks/:taskId/comments
 export const listComments = async (req, res, next) => {

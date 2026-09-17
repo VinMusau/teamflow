@@ -1,6 +1,7 @@
 import Workspace from '../models/Workspace.js';
 import User from '../models/User.js';
 import { logActivity } from '../utils/logActivity.js';
+impoer { notifyUsers } from '../utils/notifyUsers.js';
 
 const populate = (q) =>
   q
@@ -133,6 +134,15 @@ export const addMember = async (req, res, next) => {
       targetId: user._id,
       targetLabel: user.name,
       meta: { role },
+    });
+
+    await notifyUsers({
+      recipients: [user._id],
+      actor: req.user._id,
+      workspace: req.workspace._id,
+      type: 'workspace.member_added',
+      targetLabel: req.workspace.name,
+      link: `/workspaces/${req.workspace._id}`,
     });
 
     res.status(201).json({ workspace: full });

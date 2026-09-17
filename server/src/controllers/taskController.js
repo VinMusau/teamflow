@@ -1,6 +1,7 @@
 import Task, { TASK_STATUSES, TASK_PRIORITIES } from '../models/Task.js';
 import { isWorkspaceMember } from '../middleware/projectMiddleware.js';
 import { logActivity } from '../utils/logActivity.js';
+import { notifyUsers } from '../utils/notifyUsers.js';
 
 const populate = (q) => q.populate('assignee', 'name email avatar');
 
@@ -88,6 +89,17 @@ export const createTask = async (req, res, next) => {
       targetLabel: full.title,
       meta: { status: full.status, priority: full.priority },
     });
+
+    if (task.assignee) {
+      await notifyUsers({
+        recipients: [task.assignee],
+        actor: req.user._id,
+        workspace: req.workspace._id,
+        type: 'task.assigned',
+        targetLabel: task.title,
+        link: `/workspaces/${req.workspace._id}/projects/${req.project._id}`,
+      });
+    }
 
     res.status(201).json({ task: full });
   } catch (err) {
@@ -192,6 +204,17 @@ export const updateTask = async (req, res, next) => {
         targetId: task._id,
         targetLabel: task.title,
         meta: { from: original.assignee, to: newAssignee },
+      });
+    }
+
+    if (assignee !== undefined && newAssignee !== original.assignee && newAssignee) {
+      await notifyUsers({
+        recipients: [newAssignee],
+        actor: req.user._id,
+        workspace: req.workspace._id,
+        type: 'task.assigned',
+        targetLabel: task.title,
+        link: `/workspaces/${req.workspace._id}/projects/${req.project._id}`,
       });
     }
 
