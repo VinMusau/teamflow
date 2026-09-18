@@ -1,5 +1,6 @@
 import { useActivities } from '../hooks/useActivities';
 import { formatActivity, timeAgo } from '../lib/formatActivity';
+import { ActivityRowSkeleton } from './Skeleton';
 
 export default function ActivityFeed({ workspaceId }) {
   const {
@@ -19,7 +20,11 @@ export default function ActivityFeed({ workspaceId }) {
       <h2 className="text-lg font-semibold">Activity</h2>
 
       {isLoading && (
-        <p className="mt-4 text-sm text-slate-400">Loading activity…</p>
+        <div className="mt-4 space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ActivityRowSkeleton key={i} />
+          ))}
+        </div>
       )}
 
       {isError && (

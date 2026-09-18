@@ -10,6 +10,7 @@ import TaskDetailsModal from '../components/TaskDetailsModal';
 import { useRealtime } from '../hooks/useRealtime';
 import AppHeader from '../components/AppHeader';
 import { confirm } from '../stores/useConfirmStore';
+import { TaskCardSkeleton } from '../components/Skeleton';
 
 export default function ProjectDetail() {
   const { workspaceId, projectId } = useParams();
@@ -117,7 +118,21 @@ export default function ProjectDetail() {
           </div>
 
           {loadingTasks ? (
-            <p className="text-sm text-slate-400">Loading tasks…</p>
+            <div className="grid gap-4 md:grid-cols-3">
+              {['To Do', 'In Progress', 'Done'].map((label) => (
+                <div
+                  key={label}
+                  className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-3"
+                >
+                  <div className="mb-3 h-5 w-24 animate-pulse rounded bg-slate-800" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <TaskCardSkeleton key={i} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <KanbanBoard
               tasks={tasks ?? []}

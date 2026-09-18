@@ -5,7 +5,7 @@ import { useWorkspaces } from '../hooks/useWorkspaces';
 import CreateWorkspaceModal from '../components/CreateWorkspaceModal';
 import NotificationBell from '../components/NotificationBell';
 import { useRealtime } from '../hooks/useRealtime';
-
+import { WorkspaceCardSkeleton } from '../components/Skeleton';
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
@@ -51,7 +51,13 @@ export default function Dashboard() {
 
         <div className="mt-8">
           {isLoading && (
-            <p className="text-sm text-slate-400">Loading workspaces…</p>
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <li key={i}>
+                  <WorkspaceCardSkeleton />
+                </li>
+              ))}
+            </ul>
           )}
 
           {isError && (
