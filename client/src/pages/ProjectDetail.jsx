@@ -75,11 +75,9 @@ export default function ProjectDetail() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800">
-        <div className="mx-auto max-w-6xl px-6 py-4">
+      
           <AppHeader backTo={`/workspace/${workspaceId}`} backLabel="Back to workspace" />
-        </div>
-      </header>
+       
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-6">
         <div className="flex items-center gap-3">

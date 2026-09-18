@@ -68,9 +68,10 @@ export default function WorkspaceDetail() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800">
-          <AppHeader backTo="/dashboard" backLabel="Back to dashboard" />
-      </header>
+          <AppHeader 
+            backTo="/dashboard" 
+            backLabel="Back to dashboard" 
+          />
 
       <main className="mx-auto max-w-5xl px-6 py-10 space-y-8">
         <div>

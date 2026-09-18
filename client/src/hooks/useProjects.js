@@ -43,7 +43,7 @@ export function useCreateProject(workspaceId) {
         projectKeys.detail(workspaceId, project._id),
         project
       );
-      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }

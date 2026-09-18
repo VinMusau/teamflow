@@ -6,7 +6,8 @@ import {
   useMarkRead,
   useMarkAllRead,
 } from '../hooks/useNotifications';
-import { formatNotification, timeAgo } from '../lib/formatNotification';
+import { formatNotification } from '../lib/formatNotification';
+import { timeAgo } from '../lib/timeAgo';
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -40,7 +41,8 @@ export default function NotificationBell() {
 
   const handleClick = async (n) => {
     if (!n.read) {
-      await markRead.mutateAsync(n._id);
+      // Fire and forget — don't block navigation on it
+      markRead.mutate(n._id);
     }
     setOpen(false);
     navigate(n.link);
@@ -102,9 +104,7 @@ export default function NotificationBell() {
                     <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
                   )}
                   <div className={n.read ? 'pl-4' : ''}>
-                    <p className="text-slate-200">
-                      {formatNotification(n)}
-                    </p>
+                    <p className="text-slate-200">{formatNotification(n)}</p>
                     <p className="mt-0.5 text-xs text-slate-500">
                       {timeAgo(n.createdAt)}
                     </p>

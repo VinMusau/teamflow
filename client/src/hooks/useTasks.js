@@ -37,7 +37,7 @@ export function useCreateTask(workspaceId, projectId) {
       qc.invalidateQueries({
         queryKey: taskKeys.list(workspaceId, projectId),
       });
-      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
     },
   });
 }

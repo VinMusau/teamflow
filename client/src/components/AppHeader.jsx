@@ -17,13 +17,18 @@ export default function AppHeader({ backTo, backLabel }) {
             ← {backLabel}
           </Link>
         ) : (
-          <Link to="/dashboard" className="text-lg font-semibold text-slate-100">
+          <Link
+            to="/dashboard"
+            className="text-lg font-semibold text-slate-100"
+          >
             TeamFlow
           </Link>
         )}
 
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-400">{user?.name}</span>
+        <div className="flex items-center gap-3">
+          <span className="hidden text-sm text-slate-400 sm:inline">
+            {user?.name}
+          </span>
           <NotificationBell />
           <button
             onClick={logout}

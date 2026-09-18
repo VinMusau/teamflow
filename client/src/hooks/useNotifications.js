@@ -15,7 +15,6 @@ export const notificationKeys = {
   unreadCount: ['notifications', 'unread-count'],
 };
 
-// Polls every 30s so the badge stays fresh without real-time
 export function useUnreadCount() {
   return useQuery({
     queryKey: notificationKeys.unreadCount,
