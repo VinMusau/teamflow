@@ -158,7 +158,7 @@ export default function ProjectDetail() {
           workspaceId={workspaceId}
           projectId={projectId}
           members={members}
-          currentUserId={currentUser._id}
+          currentUser={currentUser}
           currentUserRole={myRole}
           onClose={closeTaskDetails}
         />

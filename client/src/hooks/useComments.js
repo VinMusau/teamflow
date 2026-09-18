@@ -27,19 +27,37 @@ export function useComments(workspaceId, projectId, taskId) {
   });
 }
 
-export function useCreateComment(workspaceId, projectId, taskId) {
+export function useCreateComment(workspaceId, projectId, taskId, currentUser) {
   const qc = useQueryClient();
+  const listKey = commentKeys.list(workspaceId, projectId, taskId);
+
   return useMutation({
     mutationFn: createComment,
-    onSuccess: () => {
-      qc.invalidateQueries({
-        queryKey: commentKeys.list(workspaceId, projectId, taskId),
-      });
-      toastSuccess(`Comment created successfully!`);
+
+    onMutate: async ({ text }) => {
+      await qc.cancelQueries({ queryKey: listKey });
+      const prev = qc.getQueryData(listKey);
+
+      const optimistic = {
+        _id: `temp-${Date.now()}`,
+        text,
+        author: currentUser,
+        createdAt: new Date().toISOString(),
+        __optimistic: true,
+      };
+
+      qc.setQueryData(listKey, (old) => [...(old ?? []), optimistic]);
+
+      return { prev, optimisticId: optimistic._id };
     },
-    onError: (error) => {
-      toastError(`Failed to create comment: ${error.message}`);
-    }
+
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev !== undefined) qc.setQueryData(listKey, ctx.prev);
+    },
+
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: listKey });
+    },
   });
 }
 

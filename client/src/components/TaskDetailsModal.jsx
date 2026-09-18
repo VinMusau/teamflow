@@ -13,7 +13,7 @@ export default function TaskDetailsModal({
   workspaceId,
   projectId,
   members = [],
-  currentUserId,
+  currentUser,
   currentUserRole,
   onClose,
 }) {
@@ -230,7 +230,7 @@ export default function TaskDetailsModal({
         workspaceId={workspaceId}
         projectId={projectId}
         taskId={task._id}
-        currentUserId={currentUserId}
+        currentUser={currentUser}
         currentUserRole={currentUserRole}
       />
     </Modal>

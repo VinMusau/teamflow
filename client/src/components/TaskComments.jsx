@@ -10,7 +10,7 @@ export default function TaskComments({
   workspaceId,
   projectId,
   taskId,
-  currentUserId,
+  currentUser,
   currentUserRole,
 }) {
   const { data: comments, isLoading, isError, error } = useComments(
@@ -18,7 +18,7 @@ export default function TaskComments({
     projectId,
     taskId
   );
-  const createComment = useCreateComment(workspaceId, projectId, taskId);
+  const createComment = useCreateComment(workspaceId, projectId, taskId, currentUser);
   const deleteComment = useDeleteComment(workspaceId, projectId, taskId);
 
   const [text, setText] = useState('');
@@ -97,12 +97,16 @@ export default function TaskComments({
       {comments?.length > 0 && (
         <ul className="space-y-3">
           {comments.map((c) => {
-            const isMine = c.author._id === currentUserId;
+            const isMine = c.author._id === currentUser._id;
             const canDelete = isMine || canModerate;
             return (
               <li
                 key={c._id}
-                className="rounded-lg border border-slate-800 bg-slate-950 p-3"
+                className={`rounded-lg border p-3 ${
+                  c.__optimistic
+                    ? 'border-slate-800 bg-slate-950/50 opacity-70'
+                    : 'border-slate-800 bg-slate-950'
+                }`}
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <div className="text-xs text-slate-400">
