@@ -2,6 +2,8 @@ import Task, { TASK_STATUSES, TASK_PRIORITIES } from '../models/Task.js';
 import { isWorkspaceMember } from '../middleware/projectMiddleware.js';
 import { logActivity } from '../utils/logActivity.js';
 import { notifyUsers } from '../utils/notifyUsers.js';
+import { emitTaskChange } from '../utils/emitTaskChange.js';
+import { emitToWorkspace } from '../config/socket.js';
 
 const populate = (q) => q.populate('assignee', 'name email avatar');
 
@@ -89,6 +91,7 @@ export const createTask = async (req, res, next) => {
       targetLabel: full.title,
       meta: { status: full.status, priority: full.priority },
     });
+    emitTaskChange(req.workspace._id, full);
 
     if (task.assignee) {
       await notifyUsers({
@@ -206,6 +209,7 @@ export const updateTask = async (req, res, next) => {
         meta: { from: original.assignee, to: newAssignee },
       });
     }
+    emitTaskChange(req.workspace._id, full);
 
     if (assignee !== undefined && newAssignee !== original.assignee && newAssignee) {
       await notifyUsers({
@@ -262,6 +266,11 @@ export const deleteTask = async (req, res, next) => {
       targetType: 'task',
       targetId: task._id,
       targetLabel: task.title,
+    });
+
+    emitToWorkspace(req.workspace._id, 'task:deleted', {
+      _id: task._id.toString(),
+      project: task.project.toString(),
     });
 
     if (!task) {

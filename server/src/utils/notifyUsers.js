@@ -1,11 +1,6 @@
 import Notification from '../models/Notification.js';
+import { emitToUser } from '../config/socket.js';
 
-/**
- * Create one notification per recipient.
- * - Excludes the actor (you don't get notified about your own actions)
- * - Deduplicates recipients
- * - Never throws
- */
 export const notifyUsers = async ({
   recipients,
   actor,
@@ -22,7 +17,7 @@ export const notifyUsers = async ({
 
     if (unique.length === 0) return;
 
-    await Notification.insertMany(
+    const docs = await Notification.insertMany(
       unique.map((userId) => ({
         user: userId,
         actor,
@@ -32,6 +27,22 @@ export const notifyUsers = async ({
         link,
       }))
     );
+
+    // Emit a personalized payload per recipient so the frontend
+    // can render immediately without a round trip.
+    for (const doc of docs) {
+      emitToUser(doc.user, 'notification:new', {
+        _id: doc._id.toString(),
+        type: doc.type,
+        targetLabel: doc.targetLabel,
+        link: doc.link,
+        read: doc.read,
+        createdAt: doc.createdAt,
+        // The actor field is just an ID on the doc; the frontend
+        // will receive name via the invalidated refetch, or we can
+        // populate here. We'll let the refetch handle names.
+      });
+    }
   } catch (err) {
     console.error('notifyUsers failed:', err.message);
   }
