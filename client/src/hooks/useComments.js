@@ -8,6 +8,7 @@ import {
   createComment,
   deleteComment,
 } from '../api/comments';
+import { toastSuccess, toastError } from '../stores/useToastStore';
 
 export const commentKeys = {
   list: (workspaceId, projectId, taskId) => [
@@ -34,7 +35,11 @@ export function useCreateComment(workspaceId, projectId, taskId) {
       qc.invalidateQueries({
         queryKey: commentKeys.list(workspaceId, projectId, taskId),
       });
+      toastSuccess(`Comment created successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to create comment: ${error.message}`);
+    }
   });
 }
 
@@ -46,6 +51,10 @@ export function useDeleteComment(workspaceId, projectId, taskId) {
       qc.invalidateQueries({
         queryKey: commentKeys.list(workspaceId, projectId, taskId),
       });
+      toastSuccess(`Comment deleted successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to delete comment: ${error.message}`);
+    }
   });
 }

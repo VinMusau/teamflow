@@ -11,6 +11,7 @@ import {
   deleteProject,
 } from '../api/projects';
 import { activityKeys } from './useActivities';
+import { toastSuccess, toastError } from '../stores/useToastStore';
 
 export const projectKeys = {
   list: (workspaceId) => ['projects', workspaceId],
@@ -44,7 +45,11 @@ export function useCreateProject(workspaceId) {
         project
       );
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Project created successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to create project: ${error.message}`);
+    }
   });
 }
 
@@ -59,6 +64,7 @@ export function useUpdateProject(workspaceId) {
         project
       );
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Project updated successfully!`);
     },
   });
 }
@@ -70,6 +76,10 @@ export function useDeleteProject(workspaceId) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: projectKeys.list(workspaceId) });
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Project deleted successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to delete project: ${error.message}`);
+    }
   });
 }

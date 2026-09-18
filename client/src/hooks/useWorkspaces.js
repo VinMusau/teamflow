@@ -13,6 +13,7 @@ import {
   removeMember,
 } from '../api/workspaces';
 import { activityKeys } from './useActivities';
+import { toastSuccess, toastError } from '../stores/useToastStore';
 
 export const workspaceKeys = {
   all: ['workspaces'],
@@ -42,7 +43,11 @@ export function useCreateWorkspace() {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
       qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
+      toastSuccess(`Workspace "${workspace.name}" created successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to create workspace: ${error.message}`);
+    }
   });
 }
 
@@ -54,7 +59,11 @@ export function useUpdateWorkspace() {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Workspace "${workspace.name}" updated successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to update workspace: ${error.message}`);
+    }
   });
 }
 
@@ -65,7 +74,11 @@ export function useDeleteWorkspace() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Workspace deleted successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to delete workspace: ${error.message}`);
+    }
   });
 }
 
@@ -76,7 +89,11 @@ export function useAddMember() {
     onSuccess: (workspace) => {
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Member added successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to add member: ${error.message}`);
+    }
   });
 }
 
@@ -87,6 +104,10 @@ export function useRemoveMember() {
     onSuccess: (workspace) => {
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Member removed successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to remove member: ${error.message}`);
+    }
   });
 }

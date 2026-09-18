@@ -10,6 +10,7 @@ import {
   deleteTask,
 } from '../api/tasks';
 import { activityKeys } from './useActivities';
+import { toastSuccess, toastError } from '../stores/useToastStore';
 
 export const taskKeys = {
   list: (workspaceId, projectId) => ['tasks', workspaceId, projectId],
@@ -38,7 +39,11 @@ export function useCreateTask(workspaceId, projectId) {
         queryKey: taskKeys.list(workspaceId, projectId),
       });
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Task created successfully!`);
     },
+    onError: (error) => {
+      toastError(`Failed to create task: ${error.message}`);
+    }
   });
 }
 
@@ -89,6 +94,7 @@ export function useDeleteTask(workspaceId, projectId) {
         queryKey: taskKeys.list(workspaceId, projectId),
       });
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      toastSuccess(`Task deleted successfully!`);
     },
   });
 }
