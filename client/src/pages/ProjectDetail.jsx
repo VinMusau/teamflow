@@ -7,7 +7,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 import KanbanBoard from '../components/kanban/KanbanBoard';
 import CreateTaskModal from '../components/CreateTaskModal';
 import TaskDetailsModal from '../components/TaskDetailsModal';
-import NotificationBell from '../components/NotificationBell';
+import { useRealtime } from '../hooks/useRealtime';
 import AppHeader from '../components/AppHeader';
 
 export default function ProjectDetail() {
@@ -31,6 +31,7 @@ export default function ProjectDetail() {
 
   const updateTask = useUpdateTask(workspaceId, projectId);
   const deleteTask = useDeleteTask(workspaceId, projectId);
+  useRealtime({ workspaceId });
 
   if (isLoading) {
     return (

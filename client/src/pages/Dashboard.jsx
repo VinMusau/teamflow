@@ -4,6 +4,8 @@ import { useUiStore } from '../stores/useUiStore';
 import { useWorkspaces } from '../hooks/useWorkspaces';
 import CreateWorkspaceModal from '../components/CreateWorkspaceModal';
 import NotificationBell from '../components/NotificationBell';
+import { useRealtime } from '../hooks/useRealtime';
+
 
 export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
@@ -11,6 +13,7 @@ export default function Dashboard() {
   const openCreate = useUiStore((s) => s.openCreateWorkspace);
 
   const { data: workspaces, isLoading, isError, error } = useWorkspaces();
+  useRealtime();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
