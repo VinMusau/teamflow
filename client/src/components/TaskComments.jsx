@@ -4,6 +4,7 @@ import {
   useCreateComment,
   useDeleteComment,
 } from '../hooks/useComments';
+import { confirm } from '../stores/useConfirmStore';
 
 export default function TaskComments({
   workspaceId,
@@ -46,7 +47,14 @@ export default function TaskComments({
   };
 
   const handleDelete = async (comment) => {
-    if (!confirm('Delete this comment?')) return;
+    const ok = await confirm({
+      title: 'Delete comment?',
+      message: `"${comment.text}" will be permanently deleted.`,
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await deleteComment.mutateAsync({
         workspaceId,

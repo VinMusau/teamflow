@@ -6,11 +6,13 @@ import Dashboard from './pages/Dashboard';
 import WorkspaceDetail from './pages/WorkspaceDetail';
 import ProjectDetail from './pages/ProjectDetail';
 import Toaster from './components/Toaster';
+import ConfirmDialog from './components/ConfirmDialog';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Toaster />
+      <ConfirmDialog />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

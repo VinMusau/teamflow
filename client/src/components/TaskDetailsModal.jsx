@@ -3,6 +3,7 @@ import Modal from './Modal';
 import { useUpdateTask, useDeleteTask } from '../hooks/useTasks';
 import { PRIORITIES, STATUSES } from '../lib/taskConstants';
 import TaskComments from './TaskComments'; 
+import { confirm} from '../stores/useConfirmStore';
 
 const toDateInput = (iso) =>
   iso ? new Date(iso).toISOString().slice(0, 10) : '';
@@ -75,7 +76,14 @@ export default function TaskDetailsModal({
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Delete "${task.title}"?`)) return;
+    const ok = await confirm({
+      title: 'Delete task?',
+      message: `"${task.title}" will be permanently deleted.`,
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+    
     try {
       await deleteTask.mutateAsync({
         workspaceId,

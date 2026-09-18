@@ -9,6 +9,7 @@ import CreateTaskModal from '../components/CreateTaskModal';
 import TaskDetailsModal from '../components/TaskDetailsModal';
 import { useRealtime } from '../hooks/useRealtime';
 import AppHeader from '../components/AppHeader';
+import { confirm } from '../stores/useConfirmStore';
 
 export default function ProjectDetail() {
   const { workspaceId, projectId } = useParams();
@@ -65,8 +66,15 @@ export default function ProjectDetail() {
     updateTask.mutate({ workspaceId, projectId, taskId, status, order });
   };
 
-  const handleDeleteTask = (task) => {
-    if (!confirm(`Delete "${task.title}"?`)) return;
+  const handleDeleteTask = async (task) => {
+    const ok = await confirm({
+      title: 'Delete project?',
+      message: `"${project.name}" will be permanently deleted.`,
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+
     deleteTask.mutate({ workspaceId, projectId, taskId: task._id });
   };
 

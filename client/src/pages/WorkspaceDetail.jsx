@@ -11,6 +11,7 @@ import { useUiStore } from '../stores/useUiStore';
 import CreateProjectModal from '../components/CreateProjectModal';
 import ActivityFeed from '../components/ActivityFeed';
 import AppHeader from '../components/AppHeader';
+import { confirm } from '../stores/useConfirmStore';
 
 export default function WorkspaceDetail() {
   const { workspaceId } = useParams();
@@ -58,7 +59,13 @@ export default function WorkspaceDetail() {
   };
 
   const handleRemove = async (userId) => {
-    if (!confirm('Remove this member?')) return;
+    const ok = await confirm({
+      title: 'Remove member?',
+      message: `This member will be removed from the workspace.`,
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
     try {
       await removeMember.mutateAsync({ workspaceId, userId });
     } catch (err) {
