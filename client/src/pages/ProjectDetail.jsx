@@ -10,7 +10,7 @@ import TaskDetailsModal from '../components/TaskDetailsModal';
 import { useRealtime } from '../hooks/useRealtime';
 import AppHeader from '../components/AppHeader';
 import { confirm } from '../stores/useConfirmStore';
-import { TaskCardSkeleton } from '../components/Skeleton';
+import { TaskCardSkeleton, SkeletonLine } from '../components/Skeleton';
 
 export default function ProjectDetail() {
   const { workspaceId, projectId } = useParams();
@@ -37,8 +37,42 @@ export default function ProjectDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 p-10 text-slate-400">
-        Loading project…
+      <div className="min-h-screen bg-slate-950 text-slate-100">
+        <AppHeader
+          backTo={`/workspaces/${workspaceId}`}
+          backLabel="Back to workspace"
+        />
+
+        <main className="mx-auto max-w-6xl px-6 py-10 space-y-6">
+          <div className="flex items-center gap-3">
+            <SkeletonLine className="h-4 w-4 rounded-full" />
+            <SkeletonLine className="h-7 w-48" />
+          </div>
+          <SkeletonLine className="h-4 w-80" />
+
+          <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <SkeletonLine className="h-6 w-24" />
+              <SkeletonLine className="h-8 w-28" />
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {['To Do', 'In Progress', 'Done'].map((label) => (
+                <div
+                  key={label}
+                  className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-3"
+                >
+                  <SkeletonLine className="mb-3 h-5 w-24" />
+                  <div className="space-y-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <TaskCardSkeleton key={i} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </main>
       </div>
     );
   }
@@ -69,8 +103,8 @@ export default function ProjectDetail() {
 
   const handleDeleteTask = async (task) => {
     const ok = await confirm({
-      title: 'Delete project?',
-      message: `"${project.name}" will be permanently deleted.`,
+      title: 'Delete task?',
+      message: `"${task.title}" will be permanently deleted.`,
       confirmLabel: 'Delete',
       destructive: true,
     });
@@ -86,7 +120,7 @@ export default function ProjectDetail() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       
-          <AppHeader backTo={`/workspace/${workspaceId}`} backLabel="Back to workspace" />
+          <AppHeader backTo={`/workspaces/${workspaceId}`} backLabel="Back to workspace" />
        
 
       <main className="mx-auto max-w-6xl px-6 py-10 space-y-6">

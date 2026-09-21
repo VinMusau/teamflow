@@ -7,10 +7,12 @@ import WorkspaceDetail from './pages/WorkspaceDetail';
 import ProjectDetail from './pages/ProjectDetail';
 import Toaster from './components/Toaster';
 import ConfirmDialog from './components/ConfirmDialog';
+import SocketBanner from './components/SocketBanner';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <SocketBanner />
       <Toaster />
       <ConfirmDialog />
       <Routes>

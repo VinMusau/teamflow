@@ -12,6 +12,8 @@ import CreateProjectModal from '../components/CreateProjectModal';
 import ActivityFeed from '../components/ActivityFeed';
 import AppHeader from '../components/AppHeader';
 import { confirm } from '../stores/useConfirmStore';
+import { WorkspaceCardSkeleton, SkeletonLine } from '../components/Skeleton';
+import { toastError } from '../stores/useToastStore';
 
 export default function WorkspaceDetail() {
   const { workspaceId } = useParams();
@@ -27,12 +29,38 @@ export default function WorkspaceDetail() {
   const [inviteError, setInviteError] = useState('');
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-950 p-10 text-slate-400">
-        Loading workspace…
-      </div>
-    );
-  }
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <AppHeader backTo="/dashboard" backLabel="Back to dashboard" />
+      <main className="mx-auto max-w-5xl px-6 py-10 space-y-8">
+        <div>
+          <SkeletonLine className="h-7 w-48" />
+          <SkeletonLine className="mt-2 h-4 w-72" />
+        </div>
+
+        <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <SkeletonLine className="h-6 w-24" />
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <li key={i}>
+                <WorkspaceCardSkeleton />
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
+          <SkeletonLine className="h-6 w-24" />
+          <div className="mt-4 space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonLine key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
 
   if (isError) {
     return (
@@ -69,7 +97,7 @@ export default function WorkspaceDetail() {
     try {
       await removeMember.mutateAsync({ workspaceId, userId });
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      toastError(err.response?.data?.message || err.message || 'Failed to remove member');
     }
   };
 
@@ -103,7 +131,13 @@ export default function WorkspaceDetail() {
           </div>
 
           {loadingProjects && (
-            <p className="mt-4 text-sm text-slate-400">Loading projects…</p>
+            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <li key={i}>
+                  <WorkspaceCardSkeleton />
+                </li>
+              ))}
+            </ul>
           )}
 
           {!loadingProjects && projects?.length === 0 && (

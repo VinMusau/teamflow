@@ -5,6 +5,8 @@ import {
   useDeleteComment,
 } from '../hooks/useComments';
 import { confirm } from '../stores/useConfirmStore';
+import { SkeletonLine } from './Skeleton';
+import { toastError } from '../stores/useToastStore';
 
 export default function TaskComments({
   workspaceId,
@@ -63,8 +65,8 @@ export default function TaskComments({
         commentId: comment._id,
       });
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
-    }
+       toastError(err.response?.data?.message || err.message || 'Failed to delete');  
+      }
   };
 
   return (
@@ -79,7 +81,18 @@ export default function TaskComments({
       </h3>
 
       {isLoading && (
-        <p className="text-sm text-slate-400">Loading comments…</p>
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              className="rounded-lg border border-slate-800 bg-slate-950 p-3"
+            >
+              <SkeletonLine className="h-3 w-32" />
+              <SkeletonLine className="mt-2 h-4 w-full" />
+              <SkeletonLine className="mt-1.5 h-4 w-2/3" />
+            </div>
+          ))}
+        </div>
       )}
 
       {isError && (
