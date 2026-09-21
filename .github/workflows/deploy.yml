@@ -1,0 +1,15 @@
+name: Deploy
+
+# Enable this once you know where the app is deployed.
+# See Day 14 for the concrete versions of these jobs.
+
+on:
+  # push:
+  #   branches: [main]
+  workflow_dispatch: # manual trigger only, for now
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deployment pipeline not configured yet."
