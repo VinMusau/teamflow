@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Workspace from '../models/Workspace.js';
+import { allowedOrigins } from './cors.js'
 
 let io = null;
 
@@ -17,6 +18,13 @@ export const initSocket = (httpServer) => {
       credentials: true,
     },
   });
+
+  const io = new Server(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
 
   // Auth middleware — runs on the handshake before connection
   io.use(async (socket, next) => {
