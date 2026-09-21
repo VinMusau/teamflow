@@ -14,19 +14,11 @@ export const getIo = () => {
 export const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+      origin: allowedOrigins,
       credentials: true,
     },
   });
 
-  const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    credentials: true,
-  },
-});
-
-  // Auth middleware — runs on the handshake before connection
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth?.token;
@@ -44,10 +36,8 @@ export const initSocket = (httpServer) => {
   });
 
   io.on('connection', async (socket) => {
-    // Personal room — every notification for this user lands here
     socket.join(`user:${socket.user._id}`);
 
-    // Workspace rooms — one per workspace the user belongs to
     const workspaces = await Workspace.find({
       'members.user': socket.user._id,
     }).select('_id');
@@ -55,16 +45,11 @@ export const initSocket = (httpServer) => {
     for (const w of workspaces) {
       socket.join(`workspace:${w._id}`);
     }
-
-    socket.on('disconnect', () => {
-      // Socket.IO cleans up room memberships automatically
-    });
   });
 
   return io;
 };
 
-// Convenience wrappers
 export const emitToUser = (userId, event, payload) => {
   if (!io) return;
   io.to(`user:${userId}`).emit(event, payload);
