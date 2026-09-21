@@ -5,7 +5,7 @@ import authRoutes from './routes/authRoutes.js';
 import workspaceRoutes from './routes/workspaceRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import { allowedOrigins } from './cors.js'
+import { allowedOrigins } from './config/cors.js';
 
 const app = express();
 const allowedOrigins = [

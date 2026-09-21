@@ -2,7 +2,7 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Workspace from '../models/Workspace.js';
-import { allowedOrigins } from './cors.js'
+import { allowedOrigins } from './cors.js';
 
 let io = null;
 
