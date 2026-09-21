@@ -8,10 +8,6 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import { allowedOrigins } from './config/cors.js';
 
 const app = express();
-const allowedOrigins = [
-  'http://localhost:5173',
-  process.env.CLIENT_ORIGIN,
-].filter(Boolean);
 
 app.use(cors({
   origin: allowedOrigins,
