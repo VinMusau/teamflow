@@ -17,7 +17,7 @@ export const connectSocket = () => {
 
     useSocketStore.getState().setStatus('connecting');
 
-    socket = io('/', {
+    socket = io(import.meta.env.VITE_API_URL || '/', {
       path: '/socket.io',
       auth: { token },
       transports: ['websocket'],
