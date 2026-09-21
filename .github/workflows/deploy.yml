@@ -1,15 +1,19 @@
 name: Deploy
 
-# Enable this once you know where the app is deployed.
-# See Day 14 for the concrete versions of these jobs.
-
 on:
-  # push:
-  #   branches: [main]
-  workflow_dispatch: # manual trigger only, for now
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  placeholder:
+  trigger-render:
+    name: Trigger Render deploy
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deployment pipeline not configured yet."
+      - name: POST to Render deploy hook
+        run: |
+          curl -fsSL -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
