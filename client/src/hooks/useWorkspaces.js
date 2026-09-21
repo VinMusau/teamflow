@@ -58,7 +58,7 @@ export function useUpdateWorkspace() {
     onSuccess: (workspace) => {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
-      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
       toastSuccess(`Workspace "${workspace.name}" updated successfully!`);
     },
     onError: (error) => {
@@ -71,7 +71,7 @@ export function useDeleteWorkspace() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: deleteWorkspace,
-    onSuccess: () => {
+    onSuccess: (_data, workspaceId) => {
       qc.invalidateQueries({ queryKey: workspaceKeys.all });
       qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
       toastSuccess(`Workspace deleted successfully!`);
@@ -88,7 +88,7 @@ export function useAddMember() {
     mutationFn: addMember,
     onSuccess: (workspace) => {
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
-      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
       toastSuccess(`Member added successfully!`);
     },
     onError: (error) => {
@@ -103,7 +103,7 @@ export function useRemoveMember() {
     mutationFn: removeMember,
     onSuccess: (workspace) => {
       qc.setQueryData(workspaceKeys.detail(workspace._id), workspace);
-      qc.invalidateQueries({ queryKey: activityKeys.list(workspaceId) });
+      qc.invalidateQueries({ queryKey: activityKeys.list(workspace._id) });
       toastSuccess(`Member removed successfully!`);
     },
     onError: (error) => {
