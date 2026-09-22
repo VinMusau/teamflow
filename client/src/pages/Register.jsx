@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/useAuthStore';
 
 export default function Register() {
   const register = useAuthStore((s) => s.register);
-  const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -19,7 +18,7 @@ export default function Register() {
     setSubmitting(true);
     try {
       await register(form.name, form.email, form.password);
-      navigate('/dashboard', { replace: true });
+      //navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {

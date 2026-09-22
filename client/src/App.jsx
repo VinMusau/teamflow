@@ -8,6 +8,9 @@ import ProjectDetail from './pages/ProjectDetail';
 import Toaster from './components/Toaster';
 import ConfirmDialog from './components/ConfirmDialog';
 import SocketBanner from './components/SocketBanner';
+import VerifyEmail from './pages/VerifyEmail';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 export default function App() {
   return (
@@ -18,6 +21,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/dashboard"
           element={

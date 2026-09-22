@@ -1,11 +1,27 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend = null;
+
+const getResend = () => {
+  if (_resend) return _resend;
+  if (!process.env.RESEND_API_KEY) {
+    // In tests / local dev without a key, skip real sending.
+    return null;
+  }
+  _resend = new Resend(process.env.RESEND_API_KEY);
+  return _resend;
+};
 
 const FROM = process.env.EMAIL_FROM || 'TeamFlow <onboarding@resend.dev>';
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 export const sendVerificationEmail = async (to, rawToken) => {
+  const resend = getResend();
+  if (!resend) {
+    console.warn('RESEND_API_KEY not set — skipping verification email to', to);
+    return;
+  }
+
   const link = `${CLIENT_URL}/verify-email?token=${rawToken}`;
 
   try {

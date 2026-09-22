@@ -33,9 +33,7 @@ export const useAuthStore = create((set) => ({
 
   register: async (name, email, password) => {
     const res = await api.post('/auth/register', { name, email, password });
-    useTokenStore.getState().setToken(res.data.token);
-    connectSocket();
-    set({ user: res.data.user });
+    
     return res.data.user;
   },
 
